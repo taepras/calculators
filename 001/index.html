@@ -267,9 +267,15 @@
     }
 
     // Button clicks
+    function haptic(ms = 10) {
+      navigator.vibrate?.(ms);
+    }
+
     document.querySelector('.buttons').addEventListener('click', e => {
       const btn = e.target.closest('button');
       if (!btn) return;
+
+      haptic();
 
       const action = btn.dataset.action;
       const insertVal = btn.dataset.insert;
