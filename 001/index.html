@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculator</title>
+  <title>Calculator 001</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    * {
+      font-family: 'Inter', sans-serif;
+    }
 
     body {
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       background: #1a1a2e;
-      font-family: 'Segoe UI', system-ui, sans-serif;
     }
 
     .calculator {
-      background: #16213e;
+      /* 9:16 — fit within viewport, cap at 1080×1920 */
+      aspect-ratio: 9 / 16;
+      width: min(1080px, 100svw, 56.25svh);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      width: 320px;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── Display ── */
@@ -30,9 +49,10 @@
       border-radius: 12px;
       padding: 16px 20px;
       margin-bottom: 20px;
-      min-height: 88px;
+      /* min-height: 88px; */
       display: flex;
       flex-direction: column;
+      flex-grow: 1;
       align-items: flex-end;
       justify-content: flex-end;
       gap: 4px;
@@ -40,7 +60,7 @@
     }
 
     .display__expression {
-      font-size: 0.85rem;
+      font-size: 1rem;
       color: #8ab4f8;
       min-height: 1.2em;
       word-break: break-all;
@@ -48,8 +68,8 @@
     }
 
     .display__input {
-      font-size: 2rem;
-      font-weight: 300;
+      font-size: 3rem;
+      font-weight: 600;
       color: #e0e0e0;
       word-break: break-all;
       text-align: right;
@@ -61,13 +81,16 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
+      flex: 1;
+      align-content: space-evenly;
     }
 
     button {
       border: none;
-      border-radius: 10px;
-      height: 58px;
-      font-size: 1.1rem;
+      border-radius: 9999px;
+      aspect-ratio: 1;
+      width: 100%;
+      font-size: 1.5rem;
       font-weight: 500;
       cursor: pointer;
       transition: filter 0.1s, transform 0.08s;
@@ -107,6 +130,7 @@
     /* span two columns */
     .col-span-2 {
       grid-column: span 2;
+      aspect-ratio: 2 / 1;
     }
 
     button:hover {
@@ -114,135 +138,148 @@
     }
   </style>
 </head>
+
 <body>
 
-<div class="calculator">
-  <div class="display">
-    <div class="display__expression" id="expression"></div>
-    <div class="display__input" id="input">0</div>
+  <div class="calculator">
+    <div class="display">
+      <div class="display__expression" id="expression"></div>
+      <div class="display__input" id="input">0</div>
+    </div>
+
+    <div class="buttons">
+      <!--  row 1  -->
+      <button class="btn-action" data-action="clear">AC</button>
+      <button class="btn-op" data-action="paren">()</button>
+      <button class="btn-op" data-insert="%">%</button>
+      <button class="btn-op" data-insert="÷">÷</button>
+
+      <!--  row 2  -->
+      <button class="btn-digit" data-insert="7">7</button>
+      <button class="btn-digit" data-insert="8">8</button>
+      <button class="btn-digit" data-insert="9">9</button>
+      <button class="btn-op" data-insert="×">×</button>
+
+      <!--  row 3  -->
+      <button class="btn-digit" data-insert="4">4</button>
+      <button class="btn-digit" data-insert="5">5</button>
+      <button class="btn-digit" data-insert="6">6</button>
+      <button class="btn-op" data-insert="-">−</button>
+
+      <!--  row 4  -->
+      <button class="btn-digit" data-insert="1">1</button>
+      <button class="btn-digit" data-insert="2">2</button>
+      <button class="btn-digit" data-insert="3">3</button>
+      <button class="btn-op" data-insert="+">+</button>
+
+      <!--  row 5  -->
+      <button class="btn-digit" data-insert="0">0</button>
+      <button class="btn-digit" data-insert=".">.</button>
+      <button class="btn-digit" data-action="backspace">⌫</button>
+      <button class="btn-equals" data-action="equals">=</button>
+
+      <!--  row 6  -->
+    </div>
   </div>
 
-  <div class="buttons">
-    <!--  row 1  -->
-    <button class="btn-action"          data-action="clear">AC</button>
-    <button class="btn-action"          data-action="backspace">⌫</button>
-    <button class="btn-op"              data-insert="(">(</button>
-    <button class="btn-op"              data-insert=")">)</button>
+  <script src="../common/calculator.js"></script>
+  <script>
+    const inputEl = document.getElementById('input');
+    const expressionEl = document.getElementById('expression');
 
-    <!--  row 2  -->
-    <button class="btn-digit"           data-insert="7">7</button>
-    <button class="btn-digit"           data-insert="8">8</button>
-    <button class="btn-digit"           data-insert="9">9</button>
-    <button class="btn-op"              data-insert="÷">÷</button>
+    let currentExpr = '';
+    let justEvaled = false;
 
-    <!--  row 3  -->
-    <button class="btn-digit"           data-insert="4">4</button>
-    <button class="btn-digit"           data-insert="5">5</button>
-    <button class="btn-digit"           data-insert="6">6</button>
-    <button class="btn-op"              data-insert="×">×</button>
+    function formatDisplay(expr) {
+      if (!expr) return '0';
+      // After evaluation justEvaled is true and expr is a plain number — format it.
+      // During input, only format if the whole expression is a single number
+      // (no operators or parens), so we don't mangle mid-expression strings.
+      const isPlainNumber = /^-?[0-9]*\.?[0-9]*$/.test(expr);
+      if (!isPlainNumber) return expr;
 
-    <!--  row 4  -->
-    <button class="btn-digit"           data-insert="1">1</button>
-    <button class="btn-digit"           data-insert="2">2</button>
-    <button class="btn-digit"           data-insert="3">3</button>
-    <button class="btn-op"              data-insert="-">−</button>
+      const [intPart, decPart] = expr.split('.');
+      const formatted = parseInt(intPart, 10).toLocaleString('en-US');
+      return decPart !== undefined ? formatted + '.' + decPart : formatted;
+    }
 
-    <!--  row 5  -->
-    <button class="btn-digit col-span-2" data-insert="0">0</button>
-    <button class="btn-digit"            data-insert=".">.</button>
-    <button class="btn-op"               data-insert="+">+</button>
+    function updateDisplay() {
+      inputEl.textContent = formatDisplay(currentExpr);
+    }
 
-    <!--  row 6  -->
-    <button class="btn-equals col-span-2" data-action="equals">=</button>
-    <button class="btn-op col-span-2"     data-insert="%">%</button>
-  </div>
-</div>
-
-<script src="../common/calculator.js"></script>
-<script>
-  const inputEl      = document.getElementById('input');
-  const expressionEl = document.getElementById('expression');
-
-  let currentExpr = '';
-  let justEvaled  = false;
-
-  function updateDisplay() {
-    inputEl.textContent = currentExpr || '0';
-  }
-
-  function insert(value) {
-    if (justEvaled) {
-      // After a result, operators continue the expression; digits start fresh
-      if (/[0-9.(]/.test(value)) {
-        currentExpr = '';
+    function insert(value) {
+      if (justEvaled) {
+        // After a result, operators continue the expression; digits start fresh
+        if (/[0-9.(]/.test(value)) {
+          currentExpr = '';
+        }
+        justEvaled = false;
       }
-      justEvaled = false;
-    }
-    currentExpr += value;
-    updateDisplay();
-  }
-
-  function doEquals() {
-    if (!currentExpr) return;
-    try {
-      // Handle percentage: treat trailing % as /100
-      const expr = currentExpr.replace(/%/g, '/100');
-      const result = calculate(expr);
-      expressionEl.textContent = currentExpr + ' =';
-      currentExpr = String(parseFloat(result.toPrecision(12)));
-      justEvaled = true;
+      currentExpr += value;
       updateDisplay();
-    } catch (e) {
-      expressionEl.textContent = currentExpr;
-      inputEl.textContent = 'Error';
-      currentExpr = '';
-      justEvaled = false;
     }
-  }
 
-  function doClear() {
-    currentExpr = '';
-    expressionEl.textContent = '';
-    justEvaled = false;
-    updateDisplay();
-  }
+    function doEquals() {
+      if (!currentExpr) return;
+      try {
+        // Handle percentage: treat trailing % as /100
+        const expr = currentExpr.replace(/%/g, '/100');
+        const result = calculate(expr);
+        expressionEl.textContent = currentExpr + ' =';
+        currentExpr = String(parseFloat(result.toPrecision(12)));
+        justEvaled = true;
+        updateDisplay();
+      } catch (e) {
+        expressionEl.textContent = currentExpr;
+        inputEl.textContent = 'Error';
+        currentExpr = '';
+        justEvaled = false;
+      }
+    }
 
-  function doBackspace() {
-    if (justEvaled) { doClear(); return; }
-    currentExpr = currentExpr.slice(0, -1);
-    updateDisplay();
-  }
+    function doClear() {
+      currentExpr = '';
+      expressionEl.textContent = '';
+      justEvaled = false;
+      updateDisplay();
+    }
 
-  // Button clicks
-  document.querySelector('.buttons').addEventListener('click', e => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
+    function doBackspace() {
+      if (justEvaled) { doClear(); return; }
+      currentExpr = currentExpr.slice(0, -1);
+      updateDisplay();
+    }
 
-    const action = btn.dataset.action;
-    const insertVal = btn.dataset.insert;
+    function doSmartParen() {
+      if (justEvaled) { justEvaled = false; currentExpr = ''; }
+      const open = (currentExpr.match(/\(/g) || []).length;
+      const close = (currentExpr.match(/\)/g) || []).length;
+      const last = currentExpr.slice(-1);
+      // Close if there are unclosed parens and the last char is a digit, dot, or closing paren
+      if (open > close && last !== '' && /[0-9.)]/.test(last)) {
+        currentExpr += ')';
+      } else {
+        currentExpr += '(';
+      }
+      updateDisplay();
+    }
 
-    if (action === 'clear')     doClear();
-    else if (action === 'backspace') doBackspace();
-    else if (action === 'equals')    doEquals();
-    else if (insertVal !== undefined) insert(insertVal);
-  });
+    // Button clicks
+    document.querySelector('.buttons').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
 
-  // Keyboard support
-  document.addEventListener('keydown', e => {
-    if (e.key >= '0' && e.key <= '9') insert(e.key);
-    else if (e.key === '.')  insert('.');
-    else if (e.key === '+')  insert('+');
-    else if (e.key === '-')  insert('-');
-    else if (e.key === '*')  insert('×');
-    else if (e.key === '/')  { e.preventDefault(); insert('÷'); }
-    else if (e.key === '(')  insert('(');
-    else if (e.key === ')')  insert(')');
-    else if (e.key === '%')  insert('%');
-    else if (e.key === 'Enter' || e.key === '=') doEquals();
-    else if (e.key === 'Backspace') doBackspace();
-    else if (e.key === 'Escape')    doClear();
-  });
-</script>
+      const action = btn.dataset.action;
+      const insertVal = btn.dataset.insert;
+
+      if (action === 'clear') doClear();
+      else if (action === 'backspace') doBackspace();
+      else if (action === 'equals') doEquals();
+      else if (action === 'paren') doSmartParen();
+      else if (insertVal !== undefined) insert(insertVal);
+    });
+  </script>
 
 </body>
+
 </html>
